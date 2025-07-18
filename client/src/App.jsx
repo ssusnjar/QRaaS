@@ -8,6 +8,8 @@ import Chat from './pages/Chat';
 import Form from './pages/Form';
 import AboutUs from './pages/AboutUs';
 import Cjenik from "./pages/CjenikPage";
+import UrediCjenik from "./pages/EditCjenik"
+
 
 const App = () => {
   return (
@@ -40,6 +42,7 @@ const App = () => {
             element={<AboutUs />}
           />
           <Route path="/cjenik/:id" element={<Cjenik />} />
+          <Route path="/uredi-cjenik/:id" element={<UrediCjenik />} />
       </Routes>
     </BrowserRouter>
   );

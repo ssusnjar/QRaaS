@@ -4,7 +4,7 @@ import FeaturesSection from "../components/FeatureSection";
 
 export default function Home() {
   return (
-    <div className="max-w-[1240px] mx-auto" >
+    <div className="max-w-[1240px] mx-auto mb-80" >
       <Header />
       <HeroSection />
       <FeaturesSection />
