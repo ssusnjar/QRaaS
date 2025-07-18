@@ -3,7 +3,7 @@ import User from "./users.model.js";
 
 const restaurantSchema = mongoose.Schema({
     ownerID:{
-        type:User.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         required:true
     },
     name: {
@@ -13,12 +13,11 @@ const restaurantSchema = mongoose.Schema({
     },
     type: {
         type:String,
-        enum: ['caffee bar, restaurant, pizzeria'],
+        enum: ['caffee bar', 'restaurant', 'pizzeria'],
         default:"caffee bar"
     },
     location: {
         type:String,
-        required:true
     }
 
 },

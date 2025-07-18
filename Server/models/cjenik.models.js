@@ -1,13 +1,34 @@
 import mongoose from "mongoose";
 
-const ItemSchema = new mongoose.Schema({
-  naziv: String,
-  cijena: String,
+const itemSchema = new mongoose.Schema({
+  name: String,
+  price: String,
 });
 
-const CjenikSchema = new mongoose.Schema({
-  items: [ItemSchema],
-  createdAt: { type: Date, default: Date.now },
+const sectionSchema = new mongoose.Schema({
+  title: String,
+  items: [itemSchema],
 });
 
-export default mongoose.model("Cjenik", CjenikSchema);
+const cjenikSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    restaurantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurant",
+    required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    sections: [sectionSchema],
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Cjenik", cjenikSchema);
