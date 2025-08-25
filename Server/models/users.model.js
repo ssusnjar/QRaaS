@@ -26,7 +26,6 @@ const UserSchema = mongoose.Schema({
 });
 
 
-// Provjera lozinke
 UserSchema.methods.checkPassword = function (inputPassword) {
   return bcrypt.compare(inputPassword, this.password);
 };

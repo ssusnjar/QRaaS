@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import axios from  "axios"
+import axios from "axios";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -8,95 +8,93 @@ export default function Chat() {
 
   const sendMessage = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const loggedInUserId = user?.userId;
-    const restaurantId = localStorage.getItem("restaurantId");
+    const token = user?.token;
+    const userId = user?.userId;
+    const restaurantId = localStorage.getItem("restaurantId") || undefined;
 
-
-    if (!loggedInUserId || !restaurantId) {
-      alert("Nedostaje user ID ili restaurant ID");
+    if (!input.trim()) return;
+    if (!userId) {
+      alert("Nedostaje user ID (prijavi se).");
       return;
     }
+
+    setMessages((prev) => [...prev, { from: "user", text: input }]);
+
     try {
-      const res = await axios.post("/api/chat", {
-        message: input,
-        userId: loggedInUserId,
-        restaurantId: restaurantId, 
-      });
+      const res = await axios.post(
+        "/api/chat",
+        {
+          text: input,
+          restaurantId: localStorage.getItem("restaurantId") || undefined,
+        },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+         const replyText =
+        res?.data?.reply ||
+        res?.data?.result?.summary ||
+        "OK, ažurirano.";
 
-      setMessages((prev) => [
-      ...prev,
-      { from: "user", text: input },
-      { from: "bot", text: res.data.reply },
-    ]);
 
+      const rid = res?.data?.result?.restaurantId;
+      if (rid) localStorage.setItem("restaurantId", rid);
+
+   
+      const cid = res?.data?.result?.cjenikId;
+      if (cid) localStorage.setItem("cjenikId", cid);
+
+      setMessages((prev) => [...prev, { from: "bot", text: replyText }]);
       setInput("");
     } catch (err) {
       console.error("Greška kod slanja:", err);
-      alert("Došlo je do greške!");
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: "Ups, došlo je do greške pri obradi poruke." },
+      ]);
     }
   };
 
-  //   if (!input.trim()) return;
-
-  //   const userMsg = { from: "user", text: input };
-  //   setMessages((prev) => [...prev, userMsg]);
-  //   setInput("");
-
-  //   const res = await fetch("http://localhost:5000/api/chat", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ message: input }),
-  //   });
-
-  //   const data = await res.json();
-  //   const botMsg = { from: "bot", text: data.reply };
-  //   setMessages((prev) => [...prev, botMsg]);
-  // };
-
 return (
-   <div className="max-w-[1240px] mx-auto mb-80" >
-      <Header />
-  <div className="max-w-2xl mx-auto pt-28 p-4">
-    <h2 className="text-3xl font-bold mb-6 text-center">Chat</h2>
-
-    <div className="h-80 overflow-y-scroll border border-gray-300 rounded-xl p-4 bg-white shadow-sm space-y-2 mb-4">
-      {messages.map((msg, i) => (
-        <div
-          key={i}
-          className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
-        >
+  <div className="max-w-[1440px] mx-auto mb-20">
+    <Header />
+    <div className="max-w-4xl mx-auto pt-20 p-6">
+      <div className="h-[600px] overflow-y-scroll border border-gray-300 rounded-2xl p-6 bg-white shadow-md space-y-4 mb-6">
+        {messages.map((msg, i) => (
           <div
-            className={`px-4 py-2 rounded-xl max-w-[70%] ${
-              msg.from === "user"
-                ? "bg-customOrange text-white"
-                : "bg-gray-100 text-gray-800"
-            }`}
+            key={i}
+            className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
           >
-            <span className="font-semibold block text-sm mb-1">
-              {msg.from === "user" ? "Ti" : "Bot"}:
-            </span>
-            <span>{msg.text}</span>
+            <div
+              className={`px-5 py-3 rounded-2xl max-w-[75%] ${
+                msg.from === "user"
+                  ? "bg-customOrange text-white"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              <span className="font-semibold block text-sm mb-1">
+                {msg.from === "user" ? "Ti" : "Bot"}:
+              </span>
+              <span>{msg.text}</span>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
 
-    <div className="flex gap-2">
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        placeholder="Napiši poruku..."
-        className="flex-grow border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-customOrange"
-      />
-      <button
-        onClick={sendMessage}
-        className="bg-customOrange hover:bg-hoverOrange text-white px-6 py-2 rounded-full"
-      >
-        Pošalji
-      </button>
+      <div className="flex gap-3">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Napiši poruku..."
+          className="flex-grow border border-gray-300 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-customOrange"
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-customOrange hover:bg-hoverOrange text-white px-8 py-3 rounded-full"
+        >
+          Pošalji
+        </button>
+      </div>
     </div>
-  </div>
   </div>
 );
 

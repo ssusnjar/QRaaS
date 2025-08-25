@@ -2,7 +2,6 @@ import User from "../models/users.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// Funkcija za generiranje tokena
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
@@ -36,10 +35,8 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Pogrešna lozinka" });
 
-    // GENERIRAJ TOKEN
     const token = generateToken(user._id);
 
-    // VRATI TOKEN U RESPONSE
     res.status(200).json({ 
       message: "Prijava uspješna", 
       userId: user._id,

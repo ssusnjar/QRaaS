@@ -53,7 +53,7 @@ const handleSubmit = async () => {
         Authorization: `Bearer ${user.token}`,
       },
       body: JSON.stringify({
-        name: menuName,   // ovo je i ime restorana i ime cjenika
+        name: menuName,   
         sections: sections,
       }),
     });
@@ -62,7 +62,6 @@ const handleSubmit = async () => {
 
     if (res.ok) {
       alert("Restoran i jelovnik uspješno spremljeni!");
-      // možeš spremiti restaurantId ako želiš npr.
       localStorage.setItem("restaurantId", data.restaurant._id);
     } else {
       alert(data.message || "Greška pri spremanju");
@@ -133,20 +132,20 @@ const handleSubmit = async () => {
         </div>
       ))}
 
-      <div className="text-center">
-        <button
-          onClick={handleAddSection}
-          className="bg-customOrange hover:bg-hoverOrange text-white px-6 py-3 rounded-full"
-        >
-          + Dodaj odjeljak
-        </button>
-      </div>
-          <button
-            onClick={handleSubmit}
-            className="mt-6 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full"
-          >
-            💾 Spremi jelovnik
-          </button>
+   <div className="flex justify-center gap-4 mt-8">
+      <button
+        onClick={handleAddSection}
+        className="bg-customOrange hover:bg-hoverOrange text-white px-6 py-3 rounded-full transition"
+      >
+        + Dodaj odjeljak
+      </button>
+
+      <button  onClick={handleSubmit} class="w-40 bg-white hover:bg-stone-100 text-black border border-gray-500 py-3 rounded-full">
+        💾 Spremi jelovnik
+      </button>
+    </div>
+
+        
         </div>
       </div>
   );

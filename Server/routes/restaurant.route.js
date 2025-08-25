@@ -30,13 +30,11 @@ router.post("/with-menu", protect, async (req, res) => {
     const { name, sections } = req.body;
     const userId = req.user._id;
  
-    // 1️⃣ Kreiraj restoran
     const newRestaurant = await Restaurant.create({
       name,
       ownerID: userId,
     });
 
-    // 2️⃣ Kreiraj cjenik za taj restoran
     const newCjenik = await Cjenik.create({
       name,
       sections,

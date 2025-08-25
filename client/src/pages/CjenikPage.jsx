@@ -47,7 +47,6 @@ export default function CjenikPage() {
         </div>
       ))}
 
-      {/* QR botun (ako želiš) */}
       <div className="text-center my-8">
         <button
           onClick={() => setShowQR(!showQR)}
@@ -66,7 +65,6 @@ export default function CjenikPage() {
         )}
       </div>
 
-      {/* Botuni za uredi i brisanje */}
       <div className="flex justify-center gap-4 mt-8">
         <button
           onClick={() => navigate(`/uredi-cjenik/${id}`)}

@@ -21,14 +21,14 @@ const Header = () => {
       <Link to="/" className="hidden md:inline-block">
         <img className="w-36" src={Logo} alt="" />
       </Link>
-        <ul className="flex">
+        <ul className="flex items-center">
           <li className="p-4"><a href="/">Home</a></li>
           <li className="p-4"><a href="/aboutUs">About Us</a></li>
           <li className="p-4"><a href="/chat">Chat</a></li>
           <li className="p-4"><a href="/form">Form</a></li>
            <div className="relative">
         <FaUserCircle
-          size={30}
+          size={25}
           onClick={() => setShowDropdown(!showDropdown)}
           className="cursor-pointer"
         />

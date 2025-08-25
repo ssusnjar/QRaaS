@@ -5,6 +5,41 @@ import Restaurant from "../models/restaurants.model.js";
 
 const router = express.Router();
 
+
+router.get("/me", protect, async (req, res) => {
+  try {
+    const q = { userId: req.user._id };
+    if (req.query.restaurantId) q.restaurantId = req.query.restaurantId;
+    const menus = await Cjenik.find(q).sort({ _id: -1 });
+    res.json(menus);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Greška kod dohvaćanja menija" });
+  }
+});
+router.get("/all", async (req, res) => {
+  try {
+    const allMenus = await Cjenik.find();
+    res.json(allMenus);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Greška kod dohvaćanja svih menija" });
+  }
+});
+
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const q = { userId: req.params.userId };
+    if (req.query.restaurantId) q.restaurantId = req.query.restaurantId;
+    const menus = await Cjenik.find(q).sort({ _id: -1 });
+    res.json(menus);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Greška kod dohvaćanja menija" });
+  }
+});
+
+
 router.get("/:id", async (req, res) => {
   try {
     const cjenik = await Cjenik.findById(req.params.id);
@@ -18,11 +53,6 @@ router.get("/:id", async (req, res) => {
 router.post("/", protect, async (req, res) => {
   try {
     const { name, sections, restaurantId  } = req.body;
-        // const { userId, name, sections, restaurantId  } = req.body;
-
-    // if (!userId) {
-    //   return res.status(400).json({ message: "Nedostaje userId" });
-    // }
 
       const restaurant = await Restaurant.findOne({
       _id: restaurantId,
@@ -33,22 +63,13 @@ router.post("/", protect, async (req, res) => {
       return res.status(404).json({ message: "Restaurant not found or not owned by you" });
     }
 
-    const newCjenik = await Cjenik.create({ userId: req.user._id, name, sections });
+    const newCjenik = await Cjenik.create({ userId: req.user._id,restaurantId,  name, sections });
     res.status(201).json({ message: "Cjenik spremljen!", cjenik: newCjenik });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.get("/user/:userId", async (req, res) => {
-  try {
-    const menus = await Cjenik.find({ userId:  req.params.userId  });
-    res.json(menus);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Greška kod dohvaćanja menija" });
-  }
-}); 
 
 router.delete("/:id", async (req, res) => {
   try {
@@ -72,51 +93,38 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/_debug/info", async (req, res) => {
+  try {
+    const db = req.app.get("mongoose")?.connection || (await import("mongoose")).then(m => m.connection);
+    const cols = await db.db.listCollections().toArray();
+    res.json({
+      db: db.name,
+      host: db.host,
+      collections: cols.map(c => c.name), 
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
-//TODO ovo vamo mozda stavit ove provjere, trenutno ne rade, al dodat ih u dio di se pise u wordu mozda o tome ima puno pisat
-// router.put("/:id", async (req, res) => {
-//   try {
-//     const { name, sections } = req.body;
 
-//     if (!name || name.trim() === "") {
-//       return res.status(400).json({ message: "Naziv cjenika je obavezan." });
-//     }
+router.get("/_debug/latest", async (req, res) => {
+  try {
+    const docs = await Cjenik.find().sort({ _id: -1 }).limit(10).lean();
+    res.json({ count: docs.length, docs });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
-//     if (!Array.isArray(sections) || sections.length === 0) {
-//       return res.status(400).json({ message: "Cjenik mora imati barem jednu sekciju." });
-//     }
-
-//     for (const section of sections) {
-//       if (!section.title || section.title.trim() === "") {
-//         return res.status(400).json({ message: "Svaka sekcija mora imati naslov." });
-//       }
-
-//       if (!Array.isArray(section.items)) {
-//         return res.status(400).json({ message: "Sekcija mora sadržavati stavke." });
-//       }
-
-//       for (const item of section.items) {
-//         if (!item.name || item.name.trim() === "") {
-//           return res.status(400).json({ message: "Svaka stavka mora imati naziv." });
-//         }
-
-//         if (!item.price || item.price.trim() === "") {
-//           return res.status(400).json({ message: "Svaka stavka mora imati cijenu." });
-//         }
-
-//       }
-//     }
-
-//     const updatedCjenik = await Cjenik.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true,
-//     });
-
-//     res.status(200).json(updatedCjenik);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Greška kod ažuriranja cjenika." });
-//   }
-// });
+router.get("/_debug/byid/:id", async (req, res) => {
+  try {
+    const doc = await Cjenik.findById(req.params.id).lean();
+    res.json({ found: !!doc, doc });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 
 export default router;
